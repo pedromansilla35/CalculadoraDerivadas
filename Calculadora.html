@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Derivadas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-5">
+    <h1 class="mb-4 text-center">🧮 Calculadora de Derivadas - Cálculo, Pedro Mansilla  </h1>
+
+    <div class="card shadow">
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="tipo" class="form-label">Selecciona tipo de derivada:</label>
+          <select id="tipo" class="form-select" onchange="cambiarEjemplo()">
+            <option value="constante">1. Derivada de una constante</option>
+            <option value="potencia">2. Derivada de una potencia</option>
+            <option value="suma">3. Derivada de una suma</option>
+            <option value="trig">4. Derivada trigonométrica</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="funcion" class="form-label">Ingresa la función:</label>
+          <input type="text" id="funcion" class="form-control" placeholder="Ej: sin(x)">
+        </div>
+
+        <button onclick="derivar()" class="btn btn-primary w-100">Derivar</button>
+      </div>
+    </div>
+
+    <div id="resultado" class="mt-4 card card-body bg-white border text-pre-wrap shadow-sm"></div>
+	<div>
+		
+	</div>
+  </div>
+
+  <script>
+    function cambiarEjemplo() {
+      const tipo = document.getElementById("tipo").value;
+      const input = document.getElementById("funcion");
+
+      if (tipo === "constante") input.value = "7";
+      else if (tipo === "potencia") input.value = "5x^3";
+      else if (tipo === "suma") input.value = "4x^3 + 2x + 7";
+      else if (tipo === "trig") input.value = "sin(x)";
+    }
+
+    function derivar() {
+      const tipo = document.getElementById("tipo").value;
+      const funcion = document.getElementById("funcion").value.trim().toLowerCase();
+      let resultado = "";
+
+      if (tipo === "constante") {
+        resultado = `📘 Derivada de una constante:
+		f(x) = ${funcion}
+		La derivada de cualquier número constante es 0.
+		👉 f'(x) = 0`;
+      }
+
+      else if (tipo === "potencia") {
+        const match = funcion.match(/^(\d*)x\^(\d+)$/);
+        if (!match) {
+          resultado = "❌ Asegúrate de escribir la función como 'ax^n', por ejemplo 5x^3";
+        } else {
+          const a = Number(match[1] || 1);
+          const n = Number(match[2]);
+          const derivada = `${a * n}x^${n - 1}`;
+          resultado = `📘 Derivada de una potencia:
+			f(x) = ${a}x^${n}
+			Regla: d/dx [x^n] = n * x^(n-1)
+			👉 f'(x) = ${derivada}`;
+        }
+      }
+
+      else if (tipo === "suma") {
+        const partes = funcion.split("+").map(f => f.trim());
+        if (partes.length < 2) {
+          resultado = "❌ Escribe al menos dos términos sumados, como '4x^3 + 2x + 7'";
+        } else {
+          resultado = `📘 Derivada de una suma:
+			f(x) = ${funcion}
+			Aplicamos: d/dx [f(x) + g(x)] = f'(x) + g'(x)\n`;
+
+          const derivadas = partes.map(parte => {
+            if (parte.match(/^\d+$/)) return "0";
+            if (parte.match(/^(\d*)x$/)) {
+              const coef = parte.replace("x", "") || "1";
+              return coef;
+            }
+            const match = parte.match(/^(\d*)x\^(\d+)$/);
+            if (match) {
+              const a = Number(match[1] || 1);
+              const n = Number(match[2]);
+              return `${a * n}x^${n - 1}`;
+            }
+            return "?";
+          });
+
+          resultado += `👉 f'(x) = ${derivadas.join(" + ")}`;
+        }
+      }
+
+      else if (tipo === "trig") {
+        const derivadasTrig = {
+          "sin(x)": "cos(x)",
+          "cos(x)": "-sin(x)",
+          "tan(x)": "sec²(x)",
+          "cot(x)": "-csc²(x)",
+          "sec(x)": "sec(x)·tan(x)",
+          "csc(x)": "-csc(x)·cot(x)"
+        };
+
+        if (derivadasTrig[funcion]) {
+          resultado = `📘 Derivada trigonométrica:
+			f(x) = ${funcion}
+			👉 f'(x) = ${derivadasTrig[funcion]}`;
+        } else {
+          resultado = `❌ Solo se permiten: sin(x), cos(x), tan(x), cot(x), sec(x), csc(x).`;
+        }
+      }
+
+      document.getElementById("resultado").innerText = resultado;
+    }
+
+    cambiarEjemplo();
+  </script>
+</body>
+</html>
